@@ -11,13 +11,24 @@ namespace OpenCvDemo
 {
     public partial class Form1 : Form
     {
+        private Accord.Video.ScreenCaptureStream screenCaptureStream = new Accord.Video.ScreenCaptureStream(Screen.AllScreens[2].Bounds);
+
         public Form1()
         {
             GlobalMouseHandler.MouseMovedEvent += GlobalMouseHandler_MouseMovedEvent;
             Application.AddMessageFilter(new GlobalMouseHandler());
 
             InitializeComponent();
-            backgroundWorker1.RunWorkerAsync();
+
+            screenCaptureStream.NewFrame += ScreenCaptureStream_NewFrame;
+            screenCaptureStream.Start();
+        }
+
+        private void ScreenCaptureStream_NewFrame(object sender, Accord.Video.NewFrameEventArgs eventArgs)
+        {
+            Bitmap bmpBaseOriginal = eventArgs.Frame;
+            Bitmap resized = new Bitmap(bmpBaseOriginal, new System.Drawing.Size(bmpBaseOriginal.Width / 3, bmpBaseOriginal.Height / 3));
+            Show2(new Demo { Image = resized, Blur = 7, ThresholdLow = 10, ThresholdHigh = 30 });
         }
 
         private void GlobalMouseHandler_MouseMovedEvent(object sender, MouseEventArgs e)
@@ -73,6 +84,64 @@ namespace OpenCvDemo
             pictureBox1.Invoke(new MethodInvoker(Refresh));
 
             Vec3b bgrPixel = img.Get<Vec3b>(0, 0);
+            pictureBox3.BackColor = Color.FromArgb(bgrPixel.Item0, bgrPixel.Item1, bgrPixel.Item2);
+            pictureBox3.Invoke(new MethodInvoker(Refresh));
+        }
+
+        private void Show2(Demo demo)
+        {
+            var srcImage = demo.Image.ToMat();
+            var binaryImage = new Mat(srcImage.Size(), MatType.CV_8UC1);
+
+            Cv2.CvtColor(srcImage, binaryImage, ColorConversionCodes.BGRA2GRAY);
+            Cv2.Threshold(binaryImage, binaryImage, thresh: 100, maxval: 255, type: ThresholdTypes.Binary);
+
+            var detectorParams = new SimpleBlobDetector.Params
+            {
+                //MinDistBetweenBlobs = 10, // 10 pixels between blobs
+                //MinRepeatability = 1,
+
+                //MinThreshold = 100,
+                //MaxThreshold = 255,
+                //ThresholdStep = 5,
+
+                FilterByArea = false,
+                //FilterByArea = true,
+                //MinArea = 0.001f, // 10 pixels squared
+                //MaxArea = 500,
+
+                FilterByCircularity = false,
+                //FilterByCircularity = true,
+                //MinCircularity = 0.001f,
+
+                FilterByConvexity = false,
+                //FilterByConvexity = true,
+                //MinConvexity = 0.001f,
+                //MaxConvexity = 10,
+
+                FilterByInertia = false,
+                //FilterByInertia = true,
+                //MinInertiaRatio = 0.001f,
+
+                FilterByColor = false
+                //FilterByColor = true,
+                //BlobColor = 255 // to extract light blobs
+            };
+            var simpleBlobDetector = SimpleBlobDetector.Create(detectorParams);
+            var keyPoints = simpleBlobDetector.Detect(binaryImage);
+
+            var imageWithKeyPoints = new Mat();
+            Cv2.DrawKeypoints(
+                    image: binaryImage,
+                    keypoints: keyPoints,
+                    outImage: imageWithKeyPoints,
+                    color: Scalar.FromRgb(255, 0, 0),
+                    flags: DrawMatchesFlags.DrawRichKeypoints);
+
+            pictureBox1.Image = imageWithKeyPoints.ToBitmap();
+            pictureBox1.Invoke(new MethodInvoker(Refresh));
+
+            Vec3b bgrPixel = imageWithKeyPoints.Get<Vec3b>(0, 0);
             pictureBox3.BackColor = Color.FromArgb(bgrPixel.Item0, bgrPixel.Item1, bgrPixel.Item2);
             pictureBox3.Invoke(new MethodInvoker(Refresh));
         }
