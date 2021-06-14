@@ -1,6 +1,9 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
 using System.Windows.Forms;
 using Accord.Video;
+using MathNet.Numerics.Statistics;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
 
@@ -10,16 +13,18 @@ namespace OpenCvDemo
     {
         private static Rectangle screenBounds = Screen.AllScreens[2].Bounds;
         private ScreenCaptureStream screenCaptureStream = new ScreenCaptureStream(new Rectangle(screenBounds.X + 250, screenBounds.Y + 100, screenBounds.Width - 500, screenBounds.Height - 200));
+        private List<double> angleList = new List<double>();
 
         public Form1()
         {
-            GlobalMouseHandler.MouseMovedEvent += GlobalMouseHandler_MouseMovedEvent;
-            Application.AddMessageFilter(new GlobalMouseHandler());
-
             InitializeComponent();
-
             screenCaptureStream.NewFrame += ScreenCaptureStream_NewFrame;
             screenCaptureStream.Start();
+        }
+
+        private void Form1_FormClosing(object sender, System.Windows.Forms.FormClosingEventArgs e)
+        {
+            screenCaptureStream.Stop();
         }
 
         private void ScreenCaptureStream_NewFrame(object sender, Accord.Video.NewFrameEventArgs eventArgs)
@@ -29,11 +34,6 @@ namespace OpenCvDemo
             Show(resized);
         }
 
-        private void GlobalMouseHandler_MouseMovedEvent(object sender, MouseEventArgs e)
-        {
-            label1.Text = string.Format("X: {0}, Y: {1}", e.X, e.Y);
-        }
-
         private void Show(Bitmap bmp)
         {
             var srcImage = bmp.ToMat();
@@ -41,6 +41,7 @@ namespace OpenCvDemo
 
             Cv2.CvtColor(srcImage, binaryImage, ColorConversionCodes.BGRA2GRAY);
             Cv2.Threshold(binaryImage, binaryImage, thresh: 100, maxval: 255, type: ThresholdTypes.Binary);
+            Cv2.GaussianBlur(binaryImage, binaryImage, new OpenCvSharp.Size(7, 7), 0);
 
             var detectorParams = new SimpleBlobDetector.Params
             {
@@ -66,23 +67,23 @@ namespace OpenCvDemo
             var keyPoints = simpleBlobDetector.Detect(binaryImage);
 
             var imageWithKeyPoints = new Mat();
-
             Cv2.DrawKeypoints(
-                    image: binaryImage,
+                    image: srcImage,
                     keypoints: keyPoints,
                     outImage: imageWithKeyPoints,
-                    color: Scalar.FromRgb(255, 0, 0),
-                    flags: DrawMatchesFlags.DrawRichKeypoints);
+                    color: Scalar.Green);
 
-            try
+            pictureBox1.Image = imageWithKeyPoints.ToBitmap();
+
+            binaryImage.SaveImage(@"C:\Users\delta\Desktop\test.png");
+
+            Deskew deskew = new Deskew(binaryImage.ToBitmap());
+            angleList.Add(deskew.GetSkewAngle());
+            MovingStatistics movingStatistics = new MovingStatistics(10, angleList);
+            label1.Invoke((MethodInvoker)delegate ()
             {
-                pictureBox1.Image = imageWithKeyPoints.ToBitmap();
-                pictureBox1.Invoke(new MethodInvoker(Refresh));
-            }
-            catch
-            {
-                screenCaptureStream.Stop();
-            }
+                label1.Text = string.Format("NumPosts = {0}, Angle = {1}", keyPoints.Length, Math.Round(movingStatistics.Mean, 3)); ;
+            });
         }
     }
 }
