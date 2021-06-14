@@ -22,7 +22,7 @@ namespace OpenCvDemo
             screenCaptureStream.Start();
         }
 
-        private void Form1_FormClosing(object sender, System.Windows.Forms.FormClosingEventArgs e)
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             screenCaptureStream.Stop();
         }
@@ -74,8 +74,6 @@ namespace OpenCvDemo
                     color: Scalar.Green);
 
             pictureBox1.Image = imageWithKeyPoints.ToBitmap();
-
-            binaryImage.SaveImage(@"C:\Users\delta\Desktop\test.png");
 
             Deskew deskew = new Deskew(binaryImage.ToBitmap());
             angleList.Add(deskew.GetSkewAngle());

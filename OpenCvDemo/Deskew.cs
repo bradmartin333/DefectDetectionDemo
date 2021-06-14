@@ -123,6 +123,7 @@ namespace OpenCvDemo
                 }
             }
         }
+        
         // Calculate all lines through the point (x,y).
         private void Calc(int x, int y)
         {
@@ -146,10 +147,12 @@ namespace OpenCvDemo
                 }
             }
         }
+        
         private double CalcDIndex(double d)
         {
             return Convert.ToInt32(d - cDMin);
         }
+        
         private bool IsBlack(int x, int y)
         {
             Color c;
@@ -159,6 +162,7 @@ namespace OpenCvDemo
             luminance = (c.R * 0.299) + (c.G * 0.587) + (c.B * 0.114);
             return luminance < 140;
         }
+        
         private void Init()
         {
             int i;
