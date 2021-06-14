@@ -12,15 +12,6 @@ namespace OpenCvDemo
         }
     }
 
-    public class Demo
-    {
-        public Bitmap Image { get; set; }
-        public int Blur { get; set; }
-        public int ThresholdLow { get; set; }
-        public int ThresholdHigh { get; set; }
-        public bool Filter { get; set; }
-    }
-
     public class GlobalMouseHandler : IMessageFilter
     {
         private const int WM_MOUSEMOVE = 0x0200;
