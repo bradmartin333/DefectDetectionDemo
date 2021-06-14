@@ -1,5 +1,11 @@
-# Textile defect detection using OpenCVSharp
+# Fork of textile defect detection using OpenCVSharp
+Stream video that is processed by OpenCV asynchronously while maintaining control of form.
+Upper left is stream, upper right is real-time cursor tracker
+Lower left is playing a GIF, lower right is displaying the upper left panel's pixel 0 ARGB color.
 
+![new demo](https://i.imgur.com/sk5wZwy.png)
+
+# Original
 This is a sample demo the result of textile defect detection via OpenCVSharp.
 
 You can check more befroe/after at blog [Textile defect detection using OpenCV](http://www.died.tw/2017/11/textile-defect-detection-using-opencv.html).
