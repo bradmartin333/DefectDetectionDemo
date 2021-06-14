@@ -75,13 +75,20 @@ namespace OpenCvDemo
 
             pictureBox1.Image = imageWithKeyPoints.ToBitmap();
 
-            Deskew deskew = new Deskew(binaryImage.ToBitmap());
-            angleList.Add(deskew.GetSkewAngle());
-            MovingStatistics movingStatistics = new MovingStatistics(10, angleList);
-            label1.Invoke((MethodInvoker)delegate ()
+            try
             {
-                label1.Text = string.Format("NumPosts = {0}, Angle = {1}", keyPoints.Length, Math.Round(movingStatistics.Mean, 3)); ;
-            });
+                Deskew deskew = new Deskew(binaryImage.ToBitmap());
+                angleList.Add(deskew.GetSkewAngle());
+                MovingStatistics movingStatistics = new MovingStatistics(10, angleList);
+                label1.Invoke((MethodInvoker)delegate ()
+                {
+                    label1.Text = string.Format("NumPosts = {0}, Angle = {1}", keyPoints.Length, Math.Round(movingStatistics.Mean, 3)); ;
+                });
+            }
+            catch (Exception)
+            {
+                screenCaptureStream.Stop();
+            }         
         }
     }
 }
