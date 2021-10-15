@@ -59,15 +59,5 @@ namespace OpenCvDemo.Properties {
                 resourceCulture = value;
             }
         }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap RunSPOT {
-            get {
-                object obj = ResourceManager.GetObject("RunSPOT", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
     }
 }
