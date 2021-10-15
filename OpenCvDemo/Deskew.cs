@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Drawing;
 
-namespace OpenCvDemo
+namespace PostFinder
 {
     class Deskew
     {

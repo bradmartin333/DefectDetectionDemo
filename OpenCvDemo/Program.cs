@@ -1,6 +1,6 @@
 ﻿using System.Windows.Forms;
 
-namespace OpenCvDemo
+namespace PostFinder
 {
     class Program
     {
